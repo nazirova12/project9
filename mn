@@ -1,1 +1,123 @@
+def brackets_check(expr):
+    pairs = {
+    ')': '(',
+    '}': '{',
+    ']': '[',
+    '>': '<'    }
 
+    stek = []
+    row = list(expr)
+
+    while row :
+        symbol = row.pop(0)
+        if symbol in '{}[]()<>':
+            if symbol in pairs.values():
+                stek.append(symbol)
+            else:
+                if stek != [] and pairs[symbol] == stek.pop():
+                    pass
+                else:
+                    return 0
+    else:
+        if stek != []:
+            return 0
+        else:
+            return 1
+
+
+def str_to_list(expr):
+    new_list = []
+    number = ''
+
+    for i in expr:
+        if i in '+-*/()':
+            if number != '':
+                new_list.append(number)
+                number = ''
+            new_list.append(i)
+        elif i in '0123456789':
+            number = number + i
+    if number != '':
+                new_list.append(number)
+                number = ''
+    return new_list
+
+
+def list_to_postfix(expr):
+    operand = {
+            '(': 1,
+            '+': 2,
+            '-': 2,
+            '*': 3,
+            '/': 3   }
+
+    stack = []
+    numbers = []
+    row = expr
+
+    for symbol in row:
+        if symbol not in "+-*/()":
+            numbers.append(symbol)
+        elif symbol == '(':
+            stack.append(symbol)
+        elif symbol == ')':
+            top_symbol = stack.pop()
+            while top_symbol != '(':
+                numbers.append(top_symbol)
+                top_symbol = stack.pop()
+        else:
+            while (stack != []) and (operand[stack[-1]] >= operand[symbol]):
+                  numbers.append(stack.pop())
+            stack.append(symbol)
+
+    while stack != []:
+        numbers.append(stack.pop())
+    return " ".join(numbers)
+
+
+def calculations(expr):
+    stack = []
+    row = expr.split()
+
+    for symbol in row:
+        if symbol not in "+-*/()":
+            stack.append(int(symbol))
+        else:
+            try:
+                operand2 = stack.pop()
+                operand1 = stack.pop()
+            except Exception:
+                operand1 = 0
+            result = doMath(symbol,operand1,operand2)
+            stack.append(result)
+    return stack.pop()
+
+
+def doMath(op, op1, op2):
+    if op == "*":
+        return op1 * op2
+    elif op == "/":
+        return op1 / op2
+    elif op == "+":
+        return op1 + op2
+    else:
+        return op1 - op2
+
+
+def main():
+    expr = input()
+    expr = expr.replace('−','-')
+    expr = expr.replace('x','*')
+    expr = expr.replace(':','/')
+    expr = str_to_list(expr)
+    print(expr)
+
+    if brackets_check(expr):
+        expr = list_to_postfix(expr)
+        print(calculations(expr))
+    else:
+        print('Bracket error!!! Check your breackets!')
+
+
+if __name__ == '__main__':
+    main()
